@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>我的网盘 · 极简列表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #f4f6fa;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15), 0 4px 18px rgba(0, 0, 0, 0.05);
+            padding: 28px 24px 36px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 头部 */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .header-icon {
+            background: #eef3fc;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e293b;
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #0b1e33;
+        }
+
+        .header-badge {
+            margin-left: auto;
+            background: #e9edf4;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 13px;
+            color: #2c3e50;
+            font-weight: 500;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        /* 文件列表卡片 */
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            background: #fafcff;
+            border-radius: 18px;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .file-item:hover {
+            background: #f0f5fe;
+            border-color: #d9e2ef;
+            box-shadow: 0 6px 14px rgba(0, 20, 50, 0.06);
+            transform: scale(1.003);
+        }
+
+        .file-item:active {
+            background: #e6edf9;
+            transform: scale(0.98);
+        }
+
+        /* 文件图标 */
+        .file-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #eef2f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 500;
+            color: #1e2f44;
+            margin-right: 16px;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .file-item:hover .file-icon {
+            background: #dce6f5;
+        }
+
+        /* 针对不同文件类型小点缀 (视觉区分) */
+        .file-icon.zip {
+            background: #e8eef9;
+            color: #1f3b5c;
+        }
+
+        .file-icon.txt {
+            background: #ecf3f0;
+            color: #1f4a3d;
+        }
+
+        .file-icon.zip::after {
+            content: "📦";
+            font-size: 20px;
+        }
+
+        .file-icon.txt::after {
+            content: "📄";
+            font-size: 20px;
+        }
+
+        /* 文件信息 */
+        .file-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-weight: 550;
+            font-size: 17px;
+            color: #0b1f33;
+            letter-spacing: -0.2px;
+            word-break: break-word;
+        }
+
+        .file-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13px;
+            color: #5a6f87;
+        }
+
+        .file-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .file-meta .dot {
+            width: 4px;
+            height: 4px;
+            background: #b7c9dd;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* 下载指示箭头 */
+        .download-hint {
+            margin-left: 10px;
+            color: #8fa0b9;
+            font-size: 20px;
+            transition: transform 0.2s, color 0.2s;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
+            background: transparent;
+        }
+
+        .file-item:hover .download-hint {
+            color: #1f4a8a;
+            opacity: 1;
+            transform: translateX(4px);
+            background: rgba(60, 100, 180, 0.06);
+        }
+
+        /* 占位说明 */
+        .placeholder-note {
+            margin-top: 28px;
+            padding: 16px 18px;
+            background: #f2f7fe;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #1a385a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px dashed #b6cce5;
+        }
+
+        .placeholder-note code {
+            background: #dce6f5;
+            padding: 3px 10px;
+            border-radius: 40px;
+            font-size: 13px;
+            color: #0d284a;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .placeholder-note span {
+            opacity: 0.8;
+        }
+
+        .footer-meta {
+            margin-top: 22px;
+            text-align: right;
+            font-size: 12px;
+            color: #7b8fa8;
+            letter-spacing: 0.2px;
+            border-top: 1px solid #eaf0f6;
+            padding-top: 18px;
+        }
+
+        .footer-meta a {
+            color: #2b5b9a;
+            text-decoration: none;
+            border-bottom: 1px dotted #b3c9e5;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 16px 28px;
+                border-radius: 24px;
+            }
+
+            .header h1 {
+                font-size: 19px;
+            }
+
+            .file-item {
+                padding: 12px 14px;
+            }
+
+            .file-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                margin-right: 12px;
+            }
+
+            .file-name {
+                font-size: 15px;
+            }
+
+            .download-hint {
+                font-size: 18px;
+                width: 28px;
+                height: 28px;
+            }
+
+            .placeholder-note {
+                flex-wrap: wrap;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .file-meta {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .file-meta .dot {
+                display: none;
+            }
+        }
+
+        /* 无点击时的焦点样式 */
+        .file-item:focus-visible {
+            outline: 3px solid #1f4a8a;
+            outline-offset: 2px;
+        }
+
+        /* 模拟“下载”链接样式 */
+        .file-item[data-download] {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container" role="main">
+    <!-- 头部 -->
+    <div class="header">
+        <div class="header-icon" aria-hidden="true">📁</div>
+        <h1>我的网盘</h1>
+        <div class="header-badge">2 个项目</div>
+    </div>
+
+    <!-- 文件列表 -->
+    <div class="file-list" role="list">
+        <!-- test.zip -->
+        <div class="file-item" role="listitem" data-filename="test.zip" data-url="test.zip" tabindex="0">
+            <div class="file-icon zip" aria-hidden="true"></div>
+            <div class="file-info">
+                <div class="file-name">test.zip</div>
+                <div class="file-meta">
+                    <span>📦 压缩包</span>
+                    <span class="dot"></span>
+                    <span>1.2 GB</span>
+                    <span class="dot"></span>
+                    <span>2026-08-18</span>
+                </div>
+            </div>
+            <div class="download-hint" aria-hidden="true">⬇️</div>
+        </div>
+
+        <!-- test.txt -->
+        <div class="file-item" role="listitem" data-filename="test.txt" data-url="test.txt" tabindex="0">
+            <div class="file-icon txt" aria-hidden="true"></div>
+            <div class="file-info">
+                <div class="file-name">test.txt</div>
+                <div class="file-meta">
+                    <span>📄 文本文档</span>
+                    <span class="dot"></span>
+                    <span>8.4 KB</span>
+                    <span class="dot"></span>
+                    <span>2026-08-18</span>
+                </div>
+            </div>
+            <div class="download-hint" aria-hidden="true">⬇️</div>
+        </div>
+    </div>
+
+    <!-- 占位说明 (下载链接占位) -->
+    <div class="placeholder-note">
+        <span>🔗</span>
+        <span>当前下载链接为占位地址：</span>
+        <code>https://www.example.com/</code>
+        <span style="font-weight: 400; opacity: 0.7;">(点击文件即可触发下载)</span>
+    </div>
+
+    <div class="footer-meta">
+        <span>⚡ 点击任意文件 · 立即下载</span>
+        &nbsp;&nbsp;•&nbsp;&nbsp;
+        <span>可替换 <code style="background: #eef2f7; padding: 0 6px; border-radius: 6px;">data-url</code></span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // 获取所有文件项
+        const fileItems = document.querySelectorAll('.file-item');
+
+        // 点击处理函数 (下载)
+        function handleFileDownload(event) {
+            const target = event.currentTarget;
+            // 从 data-* 属性获取下载地址
+            const downloadUrl = target.getAttribute('data-url');
+            const fileName = target.getAttribute('data-filename') || 'download';
+
+            if (!downloadUrl) {
+                console.warn('未设置 data-url 属性，无法下载');
+                return;
+            }
+
+            // 创建一个隐藏的 <a> 标签并触发下载
+            const anchor = document.createElement('a');
+            anchor.href = downloadUrl;
+            anchor.download = fileName;          // 建议文件名
+            anchor.style.display = 'none';
+            document.body.appendChild(anchor);
+
+            // 模拟点击下载
+            anchor.click();
+
+            // 清理 DOM
+            setTimeout(() => {
+                document.body.removeChild(anchor);
+            }, 200);
+
+            // 可选: 简单触感反馈 (保留)
+            target.style.transition = 'background 0.08s';
+            target.style.background = '#dce6f5';
+            setTimeout(() => {
+                target.style.background = '';
+            }, 120);
+        }
+
+        // 为每个文件项绑定点击事件
+        fileItems.forEach(item => {
+            // 使用 click 事件 (兼容键盘/鼠标)
+            item.addEventListener('click', handleFileDownload);
+
+            // 键盘可访问性: Enter 或 Space 触发下载
+            item.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();   // 避免页面滚动 (Space)
+                    handleFileDownload(e);
+                }
+            });
+
+            // 增加 role 提示 (已经加了 role="listitem")
+            // 确保 aria-label 包含文件名 (可选)
+            const fileName = item.getAttribute('data-filename') || '文件';
+            item.setAttribute('aria-label', `下载 ${fileName}`);
+        });
+
+    })();
+</script>
+
+<!-- 增加一个显式的隐藏说明 (辅助) -->
+<noscript>
+    <div style="padding: 20px; background: #fff3e0; border-radius: 20px; margin-top: 16px;">
+        您的浏览器未启用 JavaScript，下载功能无法使用。但界面样式依然可见。
+    </div>
+</noscript>
+
+</body>
+</html>
