@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的网盘 · 经典版</title>
+    <!-- 柔和重置 & 毛玻璃风格 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(145deg, #0b0e1a 0%, #1a1f2f 100%);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 1.5rem;
+        }
+
+        /* 主卡片 – 毛玻璃效果 */
+        .cloud-card {
+            max-width: 680px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 48px;
+            padding: 2.8rem 2.5rem;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03);
+            transition: all 0.25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* 标题区 */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 2.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 1.2rem;
+        }
+
+        .header-icon {
+            font-size: 2.4rem;
+            line-height: 1;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #f0f3ff 0%, #b9c8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .sub-head {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 0.3px;
+            margin-top: 0.2rem;
+            font-weight: 400;
+        }
+
+        /* 文件列表 – 卡片式布局 */
+        .file-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 0.8rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 24px;
+            padding: 0.9rem 1.6rem 0.9rem 1.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            color: inherit;
+            cursor: default;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: scale(1.01);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-icon {
+            font-size: 1.8rem;
+            line-height: 1;
+            width: 2.4rem;
+            text-align: center;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .file-name {
+            font-size: 1.1rem;
+            font-weight: 480;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: -0.01em;
+            word-break: break-word;
+        }
+
+        .file-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .file-size {
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 0.2rem 0.9rem;
+            border-radius: 40px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.2px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            white-space: nowrap;
+        }
+
+        .download-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 40px;
+            padding: 0.45rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 20, 80, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .download-btn i {
+            font-style: normal;
+            font-size: 1rem;
+        }
+
+        /* 底部装饰 */
+        .footer-note {
+            margin-top: 2.6rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.12);
+            letter-spacing: 0.6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding-top: 1.6rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+        }
+
+        .footer-note span {
+            opacity: 0.5;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .cloud-card {
+                padding: 1.8rem 1.2rem;
+                border-radius: 32px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .file-item {
+                flex-wrap: wrap;
+                padding: 1rem 1.2rem;
+                gap: 0.6rem 0;
+            }
+
+            .file-info {
+                flex: 1 1 100%;
+                gap: 0.6rem;
+            }
+
+            .file-meta {
+                flex: 1 1 100%;
+                justify-content: flex-start;
+                margin-top: 0.2rem;
+            }
+
+            .download-btn {
+                padding: 0.35rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .file-size {
+                font-size: 0.7rem;
+                padding: 0.1rem 0.7rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .header-icon {
+                font-size: 2rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* 小点缀 – 鼠标跟随光晕 (纯装饰) */
+        .glow {
+            position: fixed;
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(100, 140, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            top: -80px;
+            right: -80px;
+        }
+
+        .glow-bottom {
+            left: -100px;
+            bottom: -80px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 200, 100, 0.05) 0%, transparent 70%);
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 装饰光晕 -->
+    <div class="glow"></div>
+    <div class="glow-bottom"></div>
+
+    <div class="cloud-card">
+        <!-- 头部 -->
+        <div class="header">
+            <span class="header-icon">☁️</span>
+            <div>
+                <h1>我的网盘</h1>
+                <div class="sub-head">✦ 经典 · 极简</div>
+            </div>
+        </div>
+
+        <!-- 文件列表 -->
+        <div class="file-grid">
+            <!-- 文件 1：test.txt -->
+            <div class="file-item">
+                <div class="file-info">
+                    <span class="file-icon">📄</span>
+                    <span class="file-name">test.txt</span>
+                </div>
+                <div class="file-meta">
+                    <span class="file-size">0.2 KB</span>
+                    <a href="test.txt" download class="download-btn">
+                        <i>⬇</i> 下载
+                    </a>
+                </div>
+            </div>
+
+            <!-- 文件 2：植物大战僵尸杂交版.7z -->
+            <div class="file-item">
+                <div class="file-info">
+                    <span class="file-icon">🧬</span>
+                    <span class="file-name">植物大战僵尸杂交版.7z</span>
+                </div>
+                <div class="file-meta">
+                    <span class="file-size">~ 475 MB</span>
+                    <a href="https://github.com/HVGLER/cloud/releases/download/testfile/pvzhe.7z" download class="download-btn">
+                        <i>⬇</i> 下载
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部 (保留原来 <br> 的空灵感, 改为装饰) -->
+        <div class="footer-note">
+            <span>⚡ 高速</span>
+            <span>🔒 安全</span>
+            <span>📁 2 个文件</span>
+        </div>
+    </div>
+</body>
+</html>
